@@ -5,22 +5,46 @@ import 'package:project_v1/modules/confirmation_screen.dart';
 import 'package:project_v1/modules/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-Future<String> requestSms(String phoneNumber) async {
+import 'package:project_v1/modules/components/animated_button.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:project_v1/modules/theme/colors.dart';
+Future<Map<String, dynamic>> requestSms(String phoneNumber) async {
+  final backendUrl = dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000';
+  // 1. Форматируем номер телефона
+  String rawPhone = phoneNumber.replaceAll(RegExp(r'\D'), ''); // только цифры
+  // 1.1 Выводим ошибку если длина введеного телефона меньше 10 
+  if (rawPhone.length < 10) {
+    return {
+      "status": "error",
+      "errorMessage" : 'Введите корректный номер (10 цифр)'
+    };
+  }
+  String last10 = rawPhone.substring(rawPhone.length - 10); // последние 10 цифр
+  String formattedPhone = '+7$last10'; // +7 и 10 цифр
+  // 2. Делаем запрос к бэку, localhost:8000 !! Заменить и вывести в env
   try {
     final response = await http.post(
-      Uri.parse('http://localhost:8000/auth/phone/request-sms'),
+      Uri.parse('$backendUrl/auth/phone/request-sms'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'phone': phoneNumber}),
+      body: jsonEncode({'phone': formattedPhone}),
     );
     if (response.statusCode == 200) {
-      return '';
+      return { 
+        "status": "success",
+        "phone" : formattedPhone ,
+      };
     } else {
       final body = jsonDecode(response.body);
-      return body['detail'] ?? 'Ошибка: ${response.statusCode}';
+      return {
+        "status" : "error",
+        "errorMessage" : body['detail'] ?? 'Ошибка: ${response.statusCode}'
+      };
     }
   } catch (e) {
-    return 'Ошибка запроса: $e';
+    return {
+      "status" : "error",
+      "errorMessage" : 'Ошибка запроса: $e'
+    };
   }
 }
 
@@ -40,6 +64,8 @@ class _NumberScreenState extends State<NumberScreen> {
   final phoneController = TextEditingController();
 
   String statusMessage = ''; // сообщение для пользователей
+  bool loading = false; // состояние загрузки
+  bool isSuccess = false; // состояние ошибки
 
   @override
   Widget build(BuildContext context) {
@@ -67,71 +93,104 @@ class _NumberScreenState extends State<NumberScreen> {
             SizedBox(
               width: fieldWidth,
               child: TextField(
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [phoneFormatter],
-                decoration: const InputDecoration(
-                  labelText: 'Номер телефона',
-                  hintText: '+7 (___) ___-__-__',
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              inputFormatters: [phoneFormatter],
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+              decoration: InputDecoration(
+                labelText: 'Номер телефона',
+                labelStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
                 ),
+                border: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white, width: 1),
+                ),
+                enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white, width: 1),
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
+              ),
               ),
             ),
             const SizedBox(height: 24),
             SizedBox(
               width: fieldWidth,
               height: buttonHeight,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              child: AnimatedButton(
+                backgroundColor: Colors.white,
+                shadow: true,
+                width: fieldWidth,
+                height: buttonHeight,
                 onPressed: () async {
                   // Логика отправки номера телефона
-                  // 1. Форматируем номер телефона
-                  String rawPhone = phoneController.text.replaceAll(RegExp(r'\D'), ''); // только цифры
-                  String last10 = rawPhone.substring(rawPhone.length - 10); // последние 10 цифр
-                  String formattedPhone = '+7$last10'; // +7 и 10 цифр
-                  // 2. Запрашиваем СМС - код
-                  String result = await requestSms(formattedPhone);
-                  // 3. Отображаем ошибки
+                  // 1. Начинаем загрузку
                   setState(() {
-                    statusMessage = result;
+                    loading = true;
                   });
-                  if (result.isEmpty) {
+                  // 2. Запрашиваем СМС - код
+                  Map<String, dynamic> result = await requestSms(phoneController.text);
+                  // 3. Отображаем ответ с сервера
+                  setState(() {
+                    statusMessage = result["status"] == 'success' ? 
+                      'СМС код на номер ${result['phone']} был отправлен' : result['errorMessage'];
+                  });
+                  if (result["status"] == 'success') {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ConfirmationScreen(phone : formattedPhone),
+                        builder: (context) => ConfirmationScreen(phone : result['phone']),
                       ));
+                      setState(() {
+                        isSuccess = true;
+                      });
                   }
+                  setState(() {
+                    loading = false;
+                  });
                 },
-                child: const Text(
-                  'Далее',
-                  style: TextStyle(color: Colors.black),
-                ),
+                child: loading ?
+                  SizedBox(
+                    width: 24.0,
+                    height: 24.0,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+                      strokeWidth: 4.0,
+                    ),
+                  )
+                  :
+                  const Text(
+                    'Далее',
+                    style: TextStyle(color: Colors.black),
+                  ),
               ),
             ),
             const SizedBox(height: 16),
-            Center(
+            Center( // Отображение статуса запроса
               child: Text(
                 statusMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: statusMessage.isNotEmpty ? Colors.red.shade400 : Colors.green.shade400,
+                  color:  isSuccess ? AppColors.success : AppColors.error, // проверка на ошибку
                   fontSize: 14,
+                  fontWeight: FontWeight.w600
                 )
               )
             ),
             SizedBox(
               width: fieldWidth,
               height: buttonHeight,
-              child: TextButton(
+              child: AnimatedButton(
+                width: fieldWidth,
+                height: buttonHeight,
+                backgroundColor: Colors.black.withAlpha(0),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -141,12 +200,12 @@ class _NumberScreenState extends State<NumberScreen> {
                   );
                 },
                 child: const Text(
-                  '<-   Назад',
+                  '←  Назад',
                   style: TextStyle(
-                    fontFamily: 'Gilroy',
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: Color(0xFF383838),
+                  fontFamily: 'Gilroy',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: Color(0xFF383838),
                   ),
                 ),
               ),

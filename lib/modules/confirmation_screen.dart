@@ -1,33 +1,48 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:project_v1/modules/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:project_v1/modules/components/animated_button.dart';
+import 'package:project_v1/modules/theme/colors.dart';
 final storage = FlutterSecureStorage();
 
-Future<String> confirmSmsCode(String code, String phone) async {
+Future<Map<String, dynamic>> confirmSmsCode(String code, String phone) async {
+  final backendUrl = dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000';
+
   try {
     final response = await http.post(
-      Uri.parse('http://localhost:8000/auth/phone/authorize'),
+      Uri.parse('$backendUrl/auth/phone/authorize'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'phone': phone, 'code': code})
     );
     final body = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      String token = body['access_token'];
-      await storage.write(key: 'access_token', value: token);
-      return token;
+      String accessToken = body['access_token'];
+      String refreshToken = body['refresh_token'];
+      // Загружаем в сторедж флаттера токены авторизации
+      await storage.write(key: 'access_token', value: accessToken);
+      await storage.write(key: 'refresh_token', value: refreshToken);
+      return {
+        "status": "success",
+        "access_token": accessToken,
+        "refresh_token": refreshToken,
+      };
     }
     else {
-      return 'Ошибка: ${body['detail']}';
+      return {
+        'status' : 'error',
+        'errorMessage' : '${body['detail']}'
+      };
     }
   } catch (e) {
-    return 'Ошибка запроса: $e';
+    return {
+      'status': 'error',
+      'errorMessage' : 'Ошибка запроса: $e'
+    };
   }
 }
 class ConfirmationScreen extends StatefulWidget {
@@ -40,7 +55,22 @@ class ConfirmationScreen extends StatefulWidget {
 
 class _ConfirmationScreenState extends State<ConfirmationScreen> {
   final codeController = TextEditingController();
+  final List<TextEditingController> fieldsControllers =
+      List.generate(4, (_) => TextEditingController());
+  void updateCodeController() {
+    codeController.text = fieldsControllers.map((c) => c.text).join();
+  }
+  @override
+  void dispose() {
+    codeController.dispose();
+    for (var c in fieldsControllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
   String statusMessage = '';
+  bool loading = false; // состояние загрузки
+  bool isSuccess = false; // состояние ошибки
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -83,25 +113,45 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
               SizedBox(
                 width: screenWidth * 0.8,
                 
-                child: TextField(
-                  controller: codeController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 4,
-                  obscureText: false,
-                  obscuringCharacter: '•', // или '●' или '|'
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w800,
-                    fontSize: 32,
-                    letterSpacing: screenWidth * 0.15,
+                child: Form( // Смс код инпут филд
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(4, (i) => SizedBox(
+                        width: 68,
+                        height: 64,
+                        child: TextFormField(
+                          controller: fieldsControllers[i],
+                          onChanged: (value) {
+                            updateCodeController();
+                            if (value.isNotEmpty && i < 3) {
+                              // При вводе → следующий
+                              FocusScope.of(context).nextFocus();
+                            } else if (value.isEmpty && i > 0) {
+                              // При удалении → предыдущий
+                              FocusScope.of(context).previousFocus();
+                            }
+                          },
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey, width: 2),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black, width: 2),
+                            ),
+                          ),
+                          style: TextStyle(
+                            fontFamily: 'Gilroy',
+                            fontWeight: FontWeight.w800,
+                            fontSize: 32,
+                          ),
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [LengthLimitingTextInputFormatter(1)],
+                        )
+                      ),
                   ),
-                  enableInteractiveSelection: false,
-
-                  decoration: InputDecoration(
-                    counterText: '', 
-                    border: InputBorder.none,
-                  ),
-                ),
+                  )
+                )
               ),
 
               const SizedBox(height: 24),
@@ -109,43 +159,66 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
               SizedBox(
                 width: fieldWidth,
                 height: buttonHeight,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                  ),
+                child: AnimatedButton(
+                  backgroundColor: Colors.white,
+                  width: fieldWidth,
+                  height: buttonHeight,
+                  shadow: true,
                   onPressed: () async {
-                    String response = await confirmSmsCode(codeController.text, widget.phone);
-                    if (response.startsWith('Ошибка')) {
+                    setState(() {
+                      loading = true;
+                    });
+                    Map<String, dynamic> response = await confirmSmsCode(codeController.text, widget.phone);
+                    if (response['status'] == 'error') {
                       setState(() {
-                        statusMessage = response;
+                        statusMessage = response['errorMessage'];
                       });
                     } else {
                       setState(() {
-                        statusMessage = 'Удачи с занятиями :)';
+                        isSuccess = true;
+                        statusMessage = 'Удачи с тренировками :)';
                       });
                     }
+                    setState(() {
+                      loading = false;
+                    });
                   },
-                  child: const Text(
-                    'Подтвердить',
-                    style: TextStyle(color: Colors.black),
-                  ),
+                  child: loading ?
+                    SizedBox(
+                      width: 24.0,
+                      height: 24.0,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+                        strokeWidth: 4.0,
+                      ),
+                    )
+                    :
+                    const Text(
+                      'Далее',
+                      style: TextStyle(color: Colors.black),
+                    ),
                 ),
               ),
               const SizedBox(height: 16),
-              Center(
+              Center( // Отображение состояния запроса
                 child: Text(
                   statusMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: statusMessage.startsWith('Ошибка') ? Colors.red.shade400 : Colors.green.shade500,
-                    fontSize: 16
+                    color:  isSuccess ? AppColors.success: AppColors.error,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600
                   )
                 )
               ),
               SizedBox(
                 width: fieldWidth,
                 height: buttonHeight,
-                child: TextButton(
+                child: AnimatedButton(
+                  backgroundColor: Colors.black.withAlpha(0),
+                  shadow: false,
+                  width: fieldWidth,
+                  height: buttonHeight,
                   onPressed: () {
                     Navigator.push(
                       context,

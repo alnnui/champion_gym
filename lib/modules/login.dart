@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'second_login.dart';
-
+import 'package:project_v1/modules/components/animated_button.dart';
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
@@ -32,9 +32,9 @@ class SplashScreen extends StatelessWidget {
             Text(
               'Добро пожаловать!',
               style: GoogleFonts.delaGothicOne(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.w400,
-                color: Colors.black,
+              fontSize: titleFontSize,
+              fontWeight: FontWeight.w400,
+              color: Colors.black,
               ),
             ),
             const SizedBox(height: 8),
@@ -42,29 +42,35 @@ class SplashScreen extends StatelessWidget {
               'Залы комфорта и бизнес класса по доступным ценам',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Gilroy',
-                fontWeight: FontWeight.w500,
-                fontSize: subtitleFontSize,
+              fontFamily: 'Gilroy',
+              fontWeight: FontWeight.w500,
+              fontSize: subtitleFontSize,
               ),
             ),
             const SizedBox(height: 24),
             SizedBox(
               width: imageWidth,
               height: 43,
-              child: ElevatedButton(
-                onPressed: () {
+              child:Center(
+                child: AnimatedButton(
+                  width: imageWidth,
+                  height: 43,
+                  backgroundColor: Colors.white,
+                  shadow: true,
+                  onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const NumberScreen(),
+                    builder: (context) => const NumberScreen(),
                     ),
                   );
-                },
-                child: const Text(
-                  'Начать',
-                  style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                  },
+                  child: const Text(
+                    'Начать',
+                    style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                  ),
                 ),
-              ),
+              ), 
             ),
           ],
         ),) 
