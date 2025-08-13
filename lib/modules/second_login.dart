@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:project_v1/modules/components/animated_button.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project_v1/modules/theme/colors.dart';
+// функция отправки смс кода
 Future<Map<String, dynamic>> requestSms(String phoneNumber) async {
   final backendUrl = dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000';
   // 1. Форматируем номер телефона
@@ -62,10 +63,28 @@ class _NumberScreenState extends State<NumberScreen> {
   );
 
   final phoneController = TextEditingController();
-
   String statusMessage = ''; // сообщение для пользователей
   bool loading = false; // состояние загрузки
   bool isSuccess = false; // состояние ошибки
+  @override
+  void initState() {
+    super.initState();
+    phoneController.text = '+7 (';
+    phoneController.addListener(() {
+      if (phoneController.text.length < 4 || !phoneController.text.startsWith('+7 (')) {
+        phoneController.text = '+7 (';
+        phoneController.selection = TextSelection.fromPosition(
+          TextPosition(offset: phoneController.text.length),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

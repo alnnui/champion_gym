@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project_v1/modules/login.dart';
+import 'package:project_v1/modules/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project_v1/modules/components/animated_button.dart';
+import 'package:project_v1/modules/second_login.dart';
 import 'package:project_v1/modules/theme/colors.dart';
 final storage = FlutterSecureStorage();
 
@@ -24,8 +25,12 @@ Future<Map<String, dynamic>> confirmSmsCode(String code, String phone) async {
       String accessToken = body['access_token'];
       String refreshToken = body['refresh_token'];
       // Загружаем в сторедж флаттера токены авторизации
+      final accessTokenExpiresAt = DateTime.now().add(Duration(hours: 24)).toIso8601String();
+      final refreshTokenExpiresAt = DateTime.now().add(Duration(days: 31)).toIso8601String();
       await storage.write(key: 'access_token', value: accessToken);
+      await storage.write(key: 'access_token_expires_at', value: accessTokenExpiresAt);
       await storage.write(key: 'refresh_token', value: refreshToken);
+      await storage.write(key: 'access_token_expires_at', value: refreshTokenExpiresAt);
       return {
         "status": "success",
         "access_token": accessToken,
@@ -169,6 +174,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                       loading = true;
                     });
                     Map<String, dynamic> response = await confirmSmsCode(codeController.text, widget.phone);
+                    if (!mounted) return; // <-- защита от устаревшего контекста
                     if (response['status'] == 'error') {
                       setState(() {
                         statusMessage = response['errorMessage'];
@@ -176,12 +182,18 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                     } else {
                       setState(() {
                         isSuccess = true;
-                        statusMessage = 'Удачи с тренировками :)';
+                        statusMessage = '';
                       });
                     }
                     setState(() {
                       loading = false;
                     });
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HomeScreen(),
+                      ),
+                    );
                   },
                   child: loading ?
                     SizedBox(
@@ -223,7 +235,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SplashScreen(),
+                        builder: (context) => NumberScreen(),
                       ),
                     );
                   },
