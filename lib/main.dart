@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:project_v1/modules/layout.dart';
 import 'modules/home_screen.dart';
 import 'modules/login.dart';
 import 'package:http/http.dart';
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Champion Project',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: HomeScreen(),
+      home: Layout(),
     );
   }
 }
