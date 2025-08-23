@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project_v1/modules/layout.dart';
-import 'modules/home_screen.dart';
 import 'modules/login.dart';
 import 'package:http/http.dart';
 Future main() async {
@@ -21,6 +20,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
 

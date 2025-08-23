@@ -31,7 +31,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     @override
     Widget build(BuildContext context) {
       return GestureDetector(
-        onTapDown: (_) => setState(() => scale = 0.97),
+        onTapDown: (_) => setState(() => scale = 0.9),
         onTapUp: (_) => setState(() => scale = 1.0),
         onTapCancel: () => setState(() => scale = 1.0),
         onTap: widget.onPressed,

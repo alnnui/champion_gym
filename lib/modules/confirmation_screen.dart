@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project_v1/modules/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project_v1/modules/components/animated_button.dart';
+import 'package:project_v1/modules/pages/home.dart';
+import 'package:project_v1/modules/layout.dart';
 import 'package:project_v1/modules/second_login.dart';
 import 'package:project_v1/modules/theme/colors.dart';
 final storage = FlutterSecureStorage();
@@ -191,7 +192,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const HomeScreen(),
+                        builder: (_) =>  Layout(),
                       ),
                     );
                   },
