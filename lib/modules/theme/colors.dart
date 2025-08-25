@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color primary = Color(0xFFFFDE14); // жёлтый основной
   static const Color text = Color(0xFFFFFFFF);
+  static const Color textComplimentary = Colors.grey;
   static const Color textAlternative = Colors.black;
   static const Color background = Color(0xFF121212); // чёрный
   static const Color backgroundComplimentary = Color(0xFF262626);

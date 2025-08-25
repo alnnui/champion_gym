@@ -5,6 +5,7 @@ import 'package:project_v1/modules/pages/home.dart';
 import 'package:project_v1/modules/layout/footbar.dart';
 import 'package:project_v1/modules/pages/profile.dart';
 import 'package:project_v1/modules/pages/stats.dart';
+import 'package:project_v1/modules/pages/workouts.dart';
 import 'package:project_v1/modules/theme/colors.dart';
 
 class Layout extends StatefulWidget {
@@ -82,11 +83,7 @@ class _Layout extends State<Layout> {
       case 1:
         return StatsPage();
       case 2:
-        return Container(
-          key: const ValueKey(2),
-          color: Colors.red,
-          child: const Center(child: Text('Записи')),
-        );
+        return WorkoutsPage();
       case 3:
         return const ProfilePage(key: ValueKey(3));
       default:
