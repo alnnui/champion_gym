@@ -36,7 +36,7 @@ class _Layout extends State<Layout> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70),
           child: AppBar(
-          backgroundColor: AppColors.backgroundComplimentary,
+          backgroundColor: AppColors.background,
           title: Center(
             child: Image.asset(
               'lib/assets/images/champion_yellow.png',
@@ -47,8 +47,8 @@ class _Layout extends State<Layout> {
         )
       ),
       bottomNavigationBar: BottomAppBar(
-        color: AppColors.backgroundComplimentary,
-        child: Footbar(changeScreen: changeScreen,)
+        color: AppColors.background,
+        child: Footbar(changeScreen: changeScreen, currentScreen: _screenIndex,)
       ),
       body: SafeArea(
         top: false,

@@ -5,13 +5,19 @@ import 'package:project_v1/modules/theme/colors.dart';
 
 class Footbar extends StatefulWidget {
   final void Function(int screenIndex) changeScreen;
-  const Footbar({super.key, required this.changeScreen});
+  final int currentScreen;
+  const Footbar({super.key, required this.changeScreen, required this.currentScreen});
   @override
   State<Footbar> createState() => _Footbar();
 }
 class _Footbar extends State<Footbar> {
   @override
   Widget build(BuildContext context) {
+    ColorFilter? getColorFilter(int index) {
+      return widget.currentScreen == index
+          ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
+          : null;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -29,6 +35,7 @@ class _Footbar extends State<Footbar> {
                 'lib/assets/icons/home.svg',
                 width: 20,
                 height: 20,
+                colorFilter: getColorFilter(0),
               ),
             )
           ),
@@ -48,6 +55,7 @@ class _Footbar extends State<Footbar> {
                 'lib/assets/icons/statistic.svg',
                 width: 20,
                 height: 20,
+                colorFilter: getColorFilter(1),
               ),
             )
           ),
@@ -86,6 +94,7 @@ class _Footbar extends State<Footbar> {
                 'lib/assets/icons/card.svg',
                 width: 20,
                 height: 20,
+                colorFilter: getColorFilter(4), // не подсвечивается, если нужно - поменяйте индекс
               ),
             )
           ),
@@ -105,6 +114,7 @@ class _Footbar extends State<Footbar> {
                 'lib/assets/icons/workout.svg',
                 width: 24,
                 height: 24,
+                colorFilter: getColorFilter(2),
               ),
             )
           ),
@@ -124,6 +134,7 @@ class _Footbar extends State<Footbar> {
                 'lib/assets/icons/profile.svg',
                 width: 28,
                 height: 28,
+                colorFilter: getColorFilter(3),
               ),
             )
           ),

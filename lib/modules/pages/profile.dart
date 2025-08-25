@@ -94,18 +94,6 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       _infoRow('Имя', 'Иван Иванов'),
                       _infoRow('Специализация', 'Силовой тренинг'),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        icon: const Icon(Icons.message, color: Colors.white),
-                        label: const Text('Связаться с тренером'),
-                        onPressed: () {},
-                      ),
                     ],
                   ),
                 ],
