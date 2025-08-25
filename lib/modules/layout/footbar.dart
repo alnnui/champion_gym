@@ -57,8 +57,28 @@ class _Footbar extends State<Footbar> {
             width: 48,
             height: 48,
             backgroundColor: AppColors.primary,
-            onPressed: () {
-              // widget.changeScreen(2);
+            onPressed: () async {
+              await showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: AppColors.background,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) => FractionallySizedBox(
+                  heightFactor: 0.5,
+                  child: Center(
+                    child: Text(
+                      'Ваш контент здесь',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Gilroy',
+                        fontSize: 24
+                      )
+                    )
+                  ),
+                ),
+              );
             },
             borderRadius: 12,
             child: Center(
