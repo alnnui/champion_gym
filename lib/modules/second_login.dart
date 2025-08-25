@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:project_v1/modules/confirmation_screen.dart';
-import 'package:project_v1/modules/login.dart';
+import 'package:myapp/modules/confirmation_screen.dart';
+import 'package:myapp/modules/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:project_v1/modules/components/animated_button.dart';
+import 'package:myapp/modules/components/animated_button.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:project_v1/modules/theme/colors.dart';
+import 'package:myapp/modules/theme/colors.dart';
 // функция отправки смс кода
 Future<Map<String, dynamic>> requestSms(String phoneNumber) async {
   final backendUrl = dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000';
@@ -100,8 +100,9 @@ class _NumberScreenState extends State<NumberScreen> {
     );
     const buttonHeight = 43.0;
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
       backgroundColor: const Color(0xFFF5DA34),
+      resizeToAvoidBottomInset: true,
       body: Center(
         child: Align(alignment: Alignment.topCenter, child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -232,6 +233,7 @@ class _NumberScreenState extends State<NumberScreen> {
           ],
         ),)
       ),
-    );
+    ));
+    
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'second_login.dart';
-import 'package:project_v1/modules/components/animated_button.dart';
+import 'package:myapp/modules/components/animated_button.dart';
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 

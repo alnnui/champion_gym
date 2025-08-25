@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_v1/modules/theme/colors.dart';
+import 'package:myapp/modules/theme/colors.dart';
 
 class StatsPage extends StatelessWidget {
   const StatsPage({Key? key}) : super(key: key);

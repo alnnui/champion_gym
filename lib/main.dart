@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:project_v1/modules/layout.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:myapp/modules/layout.dart';
 import 'modules/login.dart';
 import 'package:http/http.dart';
 Future main() async {
@@ -13,11 +14,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Champion Project',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: Layout(),
+    return ScreenUtilInit(
+      designSize:const  Size(404,1010),
+      minTextAdapt: true,
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'Champion Project',
+          theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+          home: Layout(),
     );
+      },
+    );
+   
+   
+    
   }
 }
 

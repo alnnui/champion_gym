@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project_v1/modules/theme/colors.dart';
+import 'package:myapp/modules/theme/colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,17 +17,17 @@ class _HomePage extends State<HomePage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final titleStyle = GoogleFonts.delaGothicOne(
-      fontSize: 16,
+      fontSize: 16.sp,
       fontWeight: FontWeight.w400,
       color: AppColors.text,
     );
     final cardTitleStyle = GoogleFonts.delaGothicOne(
-      fontSize: 13, 
+      fontSize: 13.sp, 
       fontWeight: FontWeight.w400,
       color: AppColors.text.withAlpha(190)
     );
     final cardTitleStyleAlternative = GoogleFonts.delaGothicOne(
-      fontSize: 13, 
+      fontSize: 12.sp, 
       fontWeight: FontWeight.w400,
       color: AppColors.textAlternative
     );
@@ -55,8 +56,9 @@ class _HomePage extends State<HomePage> {
                         'Доброе утро, пользователь',
                         style: TextStyle(
                           fontFamily: 'Gilroy',
-                          fontSize: 14,
-                          letterSpacing: 1,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.sp,
                           color: Color(0xFFC4C4C4),
                         ),
                       ),
@@ -65,8 +67,8 @@ class _HomePage extends State<HomePage> {
                   ),
                   SizedBox(height: 16),
                   Container( // Полоса прогресса
-                      width: screenWidth,
-                      height: 35,
+                      width: 365.w,
+                      height: 35.h,
                       decoration: BoxDecoration(
                         color: AppColors.backgroundComplimentary,
                         borderRadius: BorderRadius.all(Radius.circular(30)),
@@ -75,8 +77,8 @@ class _HomePage extends State<HomePage> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
-                              width: 70,
-                              height: 35,
+                              width: 78.w,
+                              height: 38.h,
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
                                 borderRadius: BorderRadius.all(Radius.circular(30)),
@@ -96,8 +98,8 @@ class _HomePage extends State<HomePage> {
                                       '0%',
                                       style: TextStyle(
                                         fontFamily: 'Gilroy',
-                                        fontSize: 14,
-                                        letterSpacing: 1
+                                        fontSize: 14.sp,
+                                        letterSpacing: 1.sp
                                       )
                                     )
                                   ],
@@ -114,9 +116,9 @@ class _HomePage extends State<HomePage> {
                               child: Text(
                                 '70 кг', 
                                 style: TextStyle(
-                                  fontFamily: 'Gilroy',
-                                  fontSize: 20,
-                                  letterSpacing: 1,
+                                  fontFamily: 'Benzin',
+                                  fontSize: 14.sp,
+                                  letterSpacing: 1.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white
                                 )
@@ -165,7 +167,7 @@ class _HomePage extends State<HomePage> {
                                                 SizedBox(width: 6),
                                                 Text('Кажымукана', style: TextStyle(
                                                   color: AppColors.backgroundComplimentary,
-                                                  fontSize: 14,
+                                                  fontSize: 12.sp,
                                                   fontFamily: 'Gilroy',
                                                   fontWeight: FontWeight.w400
                                                 )),
@@ -185,7 +187,7 @@ class _HomePage extends State<HomePage> {
                                                 SizedBox(width: 4),
                                                 Text('Истекает 14.05.25', style: TextStyle(
                                                   color: AppColors.backgroundComplimentary,
-                                                  fontSize: 14,
+                                                  fontSize: 12.sp,
                                                   fontFamily: 'Gilroy',
                                                   fontWeight: FontWeight.w400
                                                 )),
@@ -205,7 +207,7 @@ class _HomePage extends State<HomePage> {
                                                 SizedBox(width: 4),
                                                 Text('Бизнес', style: TextStyle(
                                                   color: AppColors.backgroundComplimentary,
-                                                  fontSize: 14,
+                                                  fontSize: 12.sp,
                                                   fontFamily: 'Gilroy',
                                                   fontWeight: FontWeight.w400
                                                 )),

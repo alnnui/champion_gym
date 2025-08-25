@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:project_v1/modules/components/animated_button.dart';
-import 'package:project_v1/modules/pages/home.dart';
-import 'package:project_v1/modules/layout/footbar.dart';
-import 'package:project_v1/modules/pages/profile.dart';
-import 'package:project_v1/modules/pages/stats.dart';
-import 'package:project_v1/modules/theme/colors.dart';
+import 'package:myapp/modules/components/animated_button.dart';
+import 'package:myapp/modules/pages/home.dart';
+import 'package:myapp/modules/layout/footbar.dart';
+import 'package:myapp/modules/pages/profile.dart';
+import 'package:myapp/modules/pages/stats.dart';
+import 'package:myapp/modules/theme/colors.dart';
 
 class Layout extends StatefulWidget {
   const Layout({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:project_v1/modules/components/animated_button.dart';
-import 'package:project_v1/modules/theme/colors.dart';
+import 'package:myapp/modules/components/animated_button.dart';
+import 'package:myapp/modules/theme/colors.dart';
 
 class Footbar extends StatefulWidget {
   final void Function(int screenIndex) changeScreen;
