@@ -46,19 +46,9 @@ class _Layout extends State<Layout> {
           ),
         )
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Colors.white.withAlpha(80),
-              width: 2.0
-            )
-          )
-        ),
-        child: BottomAppBar(
-          color: AppColors.backgroundComplimentary,
-          child: Footbar(changeScreen: changeScreen,)
-        )
+      bottomNavigationBar: BottomAppBar(
+        color: AppColors.backgroundComplimentary,
+        child: Footbar(changeScreen: changeScreen,)
       ),
       body: SafeArea(
         top: false,

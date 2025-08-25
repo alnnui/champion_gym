@@ -27,8 +27,8 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/home.svg',
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
               ),
             )
           ),
@@ -46,27 +46,26 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/statistic.svg',
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
               ),
             )
           ),
         )),
         Expanded(child: Center(
           child: AnimatedButton(
-            width: 56,
-            height: 56,
+            width: 48,
+            height: 48,
             backgroundColor: AppColors.primary,
             onPressed: () {
               // widget.changeScreen(2);
             },
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             borderRadius: 12,
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/card.svg',
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
               ),
             )
           ),
@@ -84,7 +83,7 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/workout.svg',
-                width: 2,
+                width: 24,
                 height: 24,
               ),
             )
@@ -103,8 +102,8 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/profile.svg',
-                width: 30,
-                height: 30,
+                width: 28,
+                height: 28,
               ),
             )
           ),
