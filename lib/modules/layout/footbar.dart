@@ -75,17 +75,34 @@ class _Footbar extends State<Footbar> {
                 ),
                 builder: (context) => FractionallySizedBox(
                   heightFactor: 0.5,
-                  child: Center(
-                    child: Text(
-                      'Ваш контент здесь',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Gilroy',
-                        fontSize: 24
-                      )
-                    )
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(height: 12),
+                      Container(
+                        width: 50,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(70),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'Ваш контент здесь',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Gilroy',
+                              fontSize: 24
+                            )
+                          )
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                )
               );
             },
             borderRadius: 12,

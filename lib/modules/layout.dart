@@ -36,15 +36,16 @@ class _Layout extends State<Layout> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70),
           child: AppBar(
-          backgroundColor: AppColors.background,
-          title: Center(
-            child: Image.asset(
-              'lib/assets/images/champion_yellow.png',
-              width: 80,
-              height: 80
-            )
+           forceMaterialTransparency: true, 
+            backgroundColor: AppColors.background,
+            title: Center(
+              child: Image.asset(
+                'lib/assets/images/champion_yellow.png',
+                width: 80,
+                height: 80
+              )
+            ),
           ),
-        )
       ),
       bottomNavigationBar: BottomAppBar(
         color: AppColors.background,
