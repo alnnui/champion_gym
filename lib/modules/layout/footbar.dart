@@ -5,13 +5,19 @@ import 'package:myapp/modules/theme/colors.dart';
 
 class Footbar extends StatefulWidget {
   final void Function(int screenIndex) changeScreen;
-  const Footbar({super.key, required this.changeScreen});
+  final int currentScreen;
+  const Footbar({super.key, required this.changeScreen, required this.currentScreen});
   @override
   State<Footbar> createState() => _Footbar();
 }
 class _Footbar extends State<Footbar> {
   @override
   Widget build(BuildContext context) {
+    ColorFilter? getColorFilter(int index) {
+      return widget.currentScreen == index
+          ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
+          : null;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -27,8 +33,9 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/home.svg',
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
+                colorFilter: getColorFilter(0),
               ),
             )
           ),
@@ -46,27 +53,48 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/statistic.svg',
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
+                colorFilter: getColorFilter(1),
               ),
             )
           ),
         )),
         Expanded(child: Center(
           child: AnimatedButton(
-            width: 56,
-            height: 56,
+            width: 48,
+            height: 48,
             backgroundColor: AppColors.primary,
-            onPressed: () {
-              // widget.changeScreen(2);
+            onPressed: () async {
+              await showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: AppColors.background,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) => FractionallySizedBox(
+                  heightFactor: 0.5,
+                  child: Center(
+                    child: Text(
+                      'Ваш контент здесь',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Gilroy',
+                        fontSize: 24
+                      )
+                    )
+                  ),
+                ),
+              );
             },
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             borderRadius: 12,
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/card.svg',
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
+                colorFilter: getColorFilter(4), // не подсвечивается, если нужно - поменяйте индекс
               ),
             )
           ),
@@ -84,8 +112,9 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/workout.svg',
-                width: 2,
+                width: 24,
                 height: 24,
+                colorFilter: getColorFilter(2),
               ),
             )
           ),
@@ -103,8 +132,9 @@ class _Footbar extends State<Footbar> {
             child: Center(
               child: SvgPicture.asset(
                 'lib/assets/icons/profile.svg',
-                width: 30,
-                height: 30,
+                width: 28,
+                height: 28,
+                colorFilter: getColorFilter(3),
               ),
             )
           ),
