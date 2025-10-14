@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/modules/pages/ai_assistant.dart';
 import 'package:myapp/modules/theme/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:myapp/modules/pages/clubs_catalog.dart';
+import 'package:myapp/modules/pages/trainers_catalog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -174,12 +177,43 @@ class _HomePage extends State<HomePage> {
                                       color: AppColors.cardBackground,
                                       borderRadius: BorderRadius.all(Radius.circular(12))
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        Text('Посещения', style:cardTitleStyle), 
-                                      ],
-                                    )
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AIAssistantPage(),
+                                          )
+                                        );
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Image.asset(
+                                                'lib/assets/icons/ai.png',
+                                                width: 18.w,
+                                                height: 18.h,
+                                                color: Colors.yellow,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text('ИИ Ассистент', style:cardTitleStyle),
+                                            ],
+                                          ),
+                                          SizedBox(height: 6),
+                                          Text(
+                                            'Получить совет по питанию и тренировкам',
+                                            style: TextStyle(
+                                              color: AppColors.textComplimentary,
+                                              fontSize: 10.sp,
+                                              fontFamily: 'Gilroy',
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ),
                                   ),
                                 )
                               ]
@@ -210,57 +244,112 @@ class _HomePage extends State<HomePage> {
                   Column(// Клубы
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Клубы', style: cardTitleStyle),
-                          SvgPicture.asset(
-                            'lib/assets/icons/next.svg',
-                            width: 12,
-                            height: 12,
-                          )
-                        ],
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ClubsCatalogPage(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Клубы', style: cardTitleStyle),
+                            SvgPicture.asset(
+                              'lib/assets/icons/next.svg',
+                              width: 12,
+                              height: 12,
+                            )
+                          ],
+                        ),
                       ),
                       SizedBox(height: 16),
                       Row( // Карточки клубов // пока сделаем 3 потом интегрируем запросы с бэка
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                color: AppColors.backgroundComplimentary
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ClubsCatalogPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  color: AppColors.backgroundComplimentary
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('Кажымукана', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 4),
+                                    Text('ул. Кажымукана, 8', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                  ],
+                                )
                               ),
-                              child: Center(
-                                child: Text('Клуб 1', style: TextStyle(color: Colors.white)),
-                              )
                             ),
                           ),
                           SizedBox(width: 16),
                           Expanded(
-                            child: Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                color: AppColors.backgroundComplimentary
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ClubsCatalogPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  color: AppColors.backgroundComplimentary
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('Сарыарка', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 4),
+                                    Text('Пр. Сарыарка, 5/1', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                  ],
+                                )
                               ),
-                              child: Center(
-                                child: Text('Клуб 2', style: TextStyle(color: Colors.white)),
-                              )
                             ),
                           ),
                           SizedBox(width: 16),
                           Expanded(
-                            child: Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                color: AppColors.backgroundComplimentary
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ClubsCatalogPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  color: AppColors.backgroundComplimentary
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('Другое', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 4),
+                                    Text('Все клубы', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                  ],
+                                )
                               ),
-                              child: Center(
-                                child: Text('Клуб 3', style: TextStyle(color: Colors.white)),
-                              )
                             ),
                           ),
                         ],
@@ -271,57 +360,127 @@ class _HomePage extends State<HomePage> {
                   Column(// Тренеры
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Тренеры', style: cardTitleStyle),
-                          SvgPicture.asset(
-                            'lib/assets/icons/next.svg',
-                            width: 12,
-                            height: 12,
-                          )
-                        ],
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TrainersCatalogPage(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Тренеры', style: cardTitleStyle),
+                            SvgPicture.asset(
+                              'lib/assets/icons/next.svg',
+                              width: 12,
+                              height: 12,
+                            )
+                          ],
+                        ),
                       ),
                       SizedBox(height: 16),
-                      Row( // Карточки клубов // пока сделаем 3 потом интегрируем запросы с бэка
+                      Row( // Карточки тренеров // пока сделаем 3 потом интегрируем запросы с бэка
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                color: AppColors.backgroundComplimentary
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TrainersCatalogPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  color: AppColors.backgroundComplimentary
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: AppColors.primary,
+                                      child: Text('А', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text('Алексей', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    Text('Силовые', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                  ],
+                                )
                               ),
-                              child: Center(
-                                child: Text('Тренер 1', style: TextStyle(color: Colors.white)),
-                              )
                             ),
                           ),
                           SizedBox(width: 16),
                           Expanded(
-                            child: Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                color: AppColors.backgroundComplimentary
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TrainersCatalogPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  color: AppColors.backgroundComplimentary
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: AppColors.primary,
+                                      child: Text('М', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text('Марина', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    Text('Фитнес', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                  ],
+                                )
                               ),
-                              child: Center(
-                                child: Text('Тренер 2', style: TextStyle(color: Colors.white)),
-                              )
                             ),
                           ),
                           SizedBox(width: 16),
                           Expanded(
-                            child: Container(
-                              height: 140,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                color: AppColors.backgroundComplimentary
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TrainersCatalogPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  color: AppColors.backgroundComplimentary
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: AppColors.primary,
+                                      child: Text('Д', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text('Дмитрий', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    Text('Кроссфит', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                  ],
+                                )
                               ),
-                              child: Center(
-                                child: Text('Тренер 3', style: TextStyle(color: Colors.white)),
-                              )
                             ),
                           ),
                         ],

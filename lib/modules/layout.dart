@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myapp/modules/pages/home.dart';
 import 'package:myapp/modules/layout/footbar.dart';
 import 'package:myapp/modules/pages/profile.dart';
@@ -35,10 +37,10 @@ class _Layout extends State<Layout> {
           surfaceTintColor: Colors.transparent,
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           title: Center(
-            child: Image.asset(
-              'lib/assets/images/champion_yellow.png',
-              width: 80,
-              height: 80,
+            child: SvgPicture.asset(
+              'lib/assets/images/champion_yellow.svg',
+              width: 64.w,
+              height: 64.h,
             ),
           ),
         ),
