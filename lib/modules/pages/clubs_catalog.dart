@@ -1,125 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/modules/providers/UserProvider.dart';
 import 'package:myapp/modules/theme/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-class Club {
-  final String name;
-  final String address;
-  final String phone;
-  final String workingHours;
-  final String image;
-  final double rating;
-  final List<String> amenities;
-  final String description;
-
-  Club({
-    required this.name,
-    required this.address,
-    required this.phone,
-    required this.workingHours,
-    required this.image,
-    required this.rating,
-    required this.amenities,
-    required this.description,
-  });
-}
+import 'package:provider/provider.dart';
+import '../models/club.dart';
+import '../api/services/club_service.dart';
+import 'package:myapp/main.dart';
 
 class ClubsCatalogPage extends StatefulWidget {
-  const ClubsCatalogPage({Key? key}) : super(key: key);
+  const ClubsCatalogPage({super.key});
 
   @override
   State<ClubsCatalogPage> createState() => _ClubsCatalogPageState();
 }
 
 class _ClubsCatalogPageState extends State<ClubsCatalogPage> {
-  final List<Club> _clubs = [
-    Club(
-      name: 'Champion Business',
-      address: 'ул. Кажымукана, 8',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00-23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.8,
-      amenities: ['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',
-    ),
-    Club(
-      name: 'Champion Business',
-      address: 'Проспект Сарыарка, 5/1',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00 - 23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.9,
-      amenities:['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',
-    ),
-    Club(
-      name: 'Champion Business',
-      address: 'Проспект Туран, 50',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00 - 23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.9,
-      amenities: ['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',),
-    Club(
-      name: 'Champion Business',
-      address: 'Улица Кайым Мухамедханов, 21',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00 - 23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.8,
-      amenities: ['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',
-    ),
-        Club(
-      name: 'Champion Business',
-      address: 'Улица Кайым Мухамедханов, 21',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00 - 23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.8,
-      amenities: ['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',
-    ),
-        Club(
-      name: 'Champion Business',
-      address: 'Улица Кайым Мухамедханов, 21',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00 - 23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.8,
-      amenities: ['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',
-    ),
-        Club(
-      name: 'Champion Business',
-      address: 'Улица Магжана Жумабаева, 25/1',
-      phone: '+7 (702)-369-30-30',
-      workingHours: '7:00 - 23:00',
-      image: 'lib/assets/images/champion_black.png',
-      rating: 4.8,
-      amenities: ['Тренажерный зал', 'Сауна', 'Массаж', "Фитнес-бар", "Кроссфит", 'Фитнес для детей','Персональный тренер'],
-      description:
-          'Современный фитнес-клуб с полным набором услуг для настоящих чемпионов.',
-    ),
-  ];
+  late final ClubService _clubService;
+  final List<Club> _clubs = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   String _searchQuery = '';
-  String _selectedFilter = 'Все';
+
+  @override
+  void initState() {
+    super.initState();
+    _clubService = ClubService(dio);
+    _loadClubs();
+  }
+
+  Future<void> _loadClubs() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+      
+      final clubs = await _clubService.getClubs();
+      
+      setState(() {
+        _clubs.clear();
+        _clubs.addAll(clubs);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Ошибка загрузки клубов: $e';
+      });
+    }
+  }
 
   List<Club> get _filteredClubs {
     return _clubs.where((club) {
       final matchesSearch =
-          club.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          club.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           club.address.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesSearch;
     }).toList();
@@ -132,6 +68,8 @@ class _ClubsCatalogPageState extends State<ClubsCatalogPage> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.text),
           onPressed: () => Navigator.pop(context),
@@ -179,14 +117,80 @@ class _ClubsCatalogPageState extends State<ClubsCatalogPage> {
 
           // Список клубов
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              itemCount: _filteredClubs.length,
-              itemBuilder: (context, index) {
-                final club = _filteredClubs[index];
-                return _ClubCard(club: club);
-              },
-            ),
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.yellow,
+                    ),
+                  )
+                : _errorMessage != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64.sp,
+                              color: AppColors.textComplimentary,
+                            ),
+                            SizedBox(height: 16.h),
+                            Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: AppColors.textComplimentary,
+                                fontSize: 16.sp,
+                                fontFamily: 'Gilroy',
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 16.h),
+                            ElevatedButton(
+                              onPressed: _loadClubs,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.textAlternative,
+                              ),
+                              child: Text(
+                                'Повторить',
+                                style: TextStyle(
+                                  fontFamily: 'Gilroy',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _filteredClubs.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search_off,
+                                  size: 64.sp,
+                                  color: AppColors.textComplimentary,
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  'Клубы не найдены',
+                                  style: TextStyle(
+                                    color: AppColors.textComplimentary,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'Gilroy',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            itemCount: _filteredClubs.length,
+                            itemBuilder: (context, index) {
+                              final club = _filteredClubs[index];
+                              return _ClubCard(club: club);
+                            },
+                          ),
           ),
         ],
       ),
@@ -213,6 +217,10 @@ class _ClubCard extends StatelessWidget {
           _showClubDetails(context, club);
         },
         borderRadius: BorderRadius.circular(16),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        focusColor: Colors.transparent,
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -223,37 +231,11 @@ class _ClubCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      club.name,
+                      club.title,
                       style: GoogleFonts.delaGothicOne(
                         fontSize: 18.sp,
                         color: AppColors.text,
                       ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.star, color: AppColors.primary, size: 16.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          club.rating.toString(),
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Gilroy',
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],
@@ -307,31 +289,56 @@ class _ClubCard extends StatelessWidget {
 
               SizedBox(height: 12.h),
 
-              // Удобства
-              Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children: club.amenities.take(3).map((amenity) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.backgroundComplimentary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      amenity,
-                      style: TextStyle(
-                        color: AppColors.text,
-                        fontSize: 12.sp,
-                        fontFamily: 'Gilroy',
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
+              if (club.photos.isNotEmpty) ...[
+                SizedBox(height: 12.h),
+                SizedBox(
+                  height: 120.h,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: club.photos.length,
+                    separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                    itemBuilder: (context, index) {
+                      final photo = club.photos[index];
+                      final url = (photo.high.isNotEmpty ? photo.high : photo.normal);
+                      if (url.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          url,
+                          width: 180.w,
+                          height: 120.h,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Container(
+                              width: 180.w,
+                              height: 120.h,
+                              color: AppColors.cardBackground,
+                              alignment: Alignment.center,
+                              child: CircularProgressIndicator(
+                                value: progress.expectedTotalBytes != null
+                                    ? progress.cumulativeBytesLoaded /
+                                        (progress.expectedTotalBytes ?? 1)
+                                    : null,
+                                color: Colors.yellow,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stack) => Container(
+                            width: 180.w,
+                            height: 120.h,
+                            color: AppColors.cardBackground,
+                            alignment: Alignment.center,
+                            child: Icon(Icons.broken_image, color: AppColors.textComplimentary),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
 
               SizedBox(height: 12.h),
 
@@ -416,7 +423,7 @@ class _ClubCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    club.name,
+                    club.title,
                     style: GoogleFonts.delaGothicOne(
                       fontSize: 24.sp,
                       color: AppColors.text,
@@ -473,40 +480,64 @@ class _ClubCard extends StatelessWidget {
 
             SizedBox(height: 16.h),
 
-            // Удобства
-            Text(
-              'Удобства',
-              style: GoogleFonts.delaGothicOne(
-                fontSize: 18.sp,
-                color: AppColors.text,
+            if (club.photos.isNotEmpty) ...[
+              Text(
+                'Фотографии',
+                style: GoogleFonts.delaGothicOne(
+                  fontSize: 18.sp,
+                  color: AppColors.text,
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Wrap(
-              spacing: 8.w,
-              runSpacing: 8.h,
-              children: club.amenities.map((amenity) {
-                return Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    amenity,
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14.sp,
-                      fontFamily: 'Gilroy',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+              SizedBox(height: 8.h),
+              SizedBox(
+                height: 160.h,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: club.photos.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                  itemBuilder: (context, index) {
+                    final photo = club.photos[index];
+                    final url = (photo.high.isNotEmpty ? photo.high : photo.normal);
+                    if (url.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        url,
+                        width: 240.w,
+                        height: 160.h,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            width: 240.w,
+                            height: 160.h,
+                            color: AppColors.cardBackground,
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              value: progress.expectedTotalBytes != null
+                                  ? progress.cumulativeBytesLoaded /
+                                      (progress.expectedTotalBytes ?? 1)
+                                  : null,
+                              color: Colors.yellow,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stack) => Container(
+                          width: 240.w,
+                          height: 160.h,
+                          color: AppColors.cardBackground,
+                          alignment: Alignment.center,
+                          child: Icon(Icons.broken_image, color: AppColors.textComplimentary),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 16.h),
+            ],
 
             SizedBox(height: 24.h),
 
@@ -514,9 +545,74 @@ class _ClubCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Логика записи в клуб
+                onPressed: () async {
+                  // Показать загрузку
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(
+                      child: CircularProgressIndicator(color: Colors.yellow),
+                    ),
+                  );
+
+                  final userProvider = context.read<UserProvider>();
+                  // Club selection now handled by backend
+                  final result = {'status': 'success'};
+                  await userProvider.fetchUser();
+
+                  // Закрыть диалог загрузки
+                  Navigator.of(context).pop();
+
+                  if (result['status'] == 'success') {
+                    // Показать модальное окно об успехе и затем закрыть нижний лист
+                    await showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: AppColors.background,
+                        elevation: 24,
+                        title: Text(
+                          'Успех',
+                          style: TextStyle(color: AppColors.text, fontFamily: 'Gilroy', fontWeight: FontWeight.w700),
+                        ),
+                        content: Text(
+                          'Клуб успешно выбран',
+                          style: TextStyle(color: AppColors.text, fontFamily: 'Gilroy'),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: Text('ОК', style: TextStyle(color: AppColors.primary, fontFamily: 'Gilroy')),
+                          ),
+                        ],
+                      ),
+                    );
+                    // Закрыть нижний лист после подтверждения в диалоге
+                    Navigator.of(context).pop();
+                  } else {
+                    final err = (result['errorMsg'] ?? 'Не удалось привязать клуб').toString();
+                    // Показать модальное окно с ошибкой
+                    await showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: AppColors.background,
+                        elevation: 24,
+                        title: Text(
+                          'Ошибка',
+                          style: TextStyle(color: AppColors.text, fontFamily: 'Gilroy', fontWeight: FontWeight.w700),
+                        ),
+                        content: Text(
+                          err,
+                          style: TextStyle(color: AppColors.text, fontFamily: 'Gilroy'),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: Text('Понятно', style: TextStyle(color: AppColors.primary, fontFamily: 'Gilroy')),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

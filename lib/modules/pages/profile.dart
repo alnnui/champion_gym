@@ -1,40 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:myapp/modules/providers/UserProvider.dart';
 import 'package:myapp/modules/theme/colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:myapp/modules/pages/notifications_settings.dart';
-import 'package:myapp/modules/pages/security_settings.dart';
-import 'package:myapp/modules/components/animated_tap.dart';
+import 'package:myapp/main.dart';
+import 'package:myapp/modules/pages/deposits_page.dart';
+import 'package:myapp/modules/pages/settings.dart';
+import 'package:myapp/modules/pages/avatar_customization.dart';
+import 'package:myapp/modules/api/services/account_service.dart';
+import 'package:myapp/modules/models/service.dart' as service_model;
+import 'package:myapp/modules/widgets/avatar/rive_avatar_widget.dart';
+import 'package:myapp/modules/widgets/gamification_widget.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String? _userPhone;
+  late final AccountService _accountService;
+  service_model.AccountService? _membership;
+  bool _isLoadingMembership = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUserPhone();
+    _accountService = AccountService(dio);
+    // Обновляем данные при входе на страницу
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().fetchUser();
+      _loadMembership();
+    });
   }
 
-  Future<void> _loadUserPhone() async {
+  Future<void> _openAvatarCustomization() async {
+    final current = context.read<UserProvider>().userProfile?.avatarConfig;
+    await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(
+        builder: (_) => AvatarCustomizationScreen(initialConfig: current),
+      ),
+    );
+    // Avatar is saved via UserProvider; the watched profile already reflects it.
+  }
+
+  String _avatarInitials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
+    return (parts[0].characters.first + parts[1].characters.first).toUpperCase();
+  }
+
+  Future<void> _loadMembership() async {
+    setState(() {
+      _isLoadingMembership = true;
+    });
+
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final membership = await _accountService.getActiveMembership();
+      
+      if (!mounted) return;
+      
       setState(() {
-        _userPhone = prefs.getString('userPhone');
+        _membership = membership;
+        _isLoadingMembership = false;
       });
     } catch (e) {
-      // Можно логировать ошибку, если нужно
-      debugPrint('Ошибка загрузки номера: $e');
+      if (!mounted) return;
+      
+      setState(() {
+        _isLoadingMembership = false;
+      });
+      debugPrint('Ошибка загрузки абонемента: $e');
     }
   }
+
 
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
@@ -77,16 +120,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (confirmed == true) {
       try {
-        final prefs = await SharedPreferences.getInstance();
-        // Примеры ключей — поменяй под свои
-        await prefs.remove('authToken');
-        await prefs.remove('userPhone');
+        final userProvider = context.read<UserProvider>();
+        await userProvider.logout(); // Очищаем токен и данные пользователя
 
         if (!mounted) return;
-        // Замените '/login' на ваш реальный маршрут экрана входа
-        Navigator.of(
-          context,
-        ).pushNamedAndRemoveUntil('/login', (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
       } catch (e) {
         debugPrint('Ошибка при выходе: $e');
         // Можно показать SnackBar с ошибкой
@@ -101,168 +139,188 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
+    final profile = userProvider.userProfile;
+    final name = profile?.username ?? profile?.phone ?? 'Пользователь';
+    final phone = profile?.phone ?? '+7-777-888-77-88';
+    final photoUrl = profile?.avatarUrl;
+    final avatarConfig = profile?.avatarConfig;
+    final statusBadge = profile?.level != null && profile!.level > 5 ? 'Premium' : 'Standard';
+    final credits = 0; // TODO: добавить credits в новую модель
+    final totalCredits = 0; // TODO: добавить totalCredits в новую модель
+
+    // Club info  
+    final clubName = 'Champion Fitness'; // TODO: добавить club в новую модель
+    
+    // Subscription info (from loaded membership or default)
+    final subscriptionType = _membership?.title ?? statusBadge;
+    final subscriptionStatus = _membership?.status ?? 'Не найден';
+    final subscriptionExpiry = _membership?.endDate != null 
+        ? 'до ${_membership!.endDate!.day.toString().padLeft(2, '0')}.${_membership!.endDate!.month.toString().padLeft(2, '0')}.${_membership!.endDate!.year}'
+        : 'Не указано';
+    final subscriptionDaysLeft = _membership?.daysLeft?.toString() ?? '-';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Верхняя секция с профилем
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.primary.withOpacity(0.1),
-                    AppColors.background,
-                  ],
+            if (userProvider.error != null)
+              Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: Text(
+                  userProvider.error!,
+                  style: TextStyle(color: AppColors.error, fontFamily: 'Gilroy'),
                 ),
               ),
+            // Верхняя секция с профилем
+            SizedBox(
+              width: double.infinity,
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 20.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 80.w,
-                      height: 80.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(40),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+                    GestureDetector(
+                      onTap: _openAvatarCustomization,
+                      child: Stack(
+                        children: [
+                          // Saved Rive avatar; falls back to the network photo
+                          // or initials when no avatar has been customized.
+                          avatarConfig != null
+                              ? UserAvatarWidget(
+                                  avatarConfig: avatarConfig,
+                                  size: 80.w,
+                                  backgroundColor: AppColors.primary,
+                                  initials: _avatarInitials(name),
+                                  textColor: AppColors.textAlternative,
+                                  fontSize: 32.sp,
+                                )
+                              : Container(
+                                  width: 80.w,
+                                  height: 80.w,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                    image: photoUrl != null &&
+                                            photoUrl.isNotEmpty
+                                        ? DecorationImage(
+                                            image: NetworkImage(photoUrl),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                  ),
+                                  child: photoUrl == null || photoUrl.isEmpty
+                                      ? Icon(
+                                          Icons.person,
+                                          size: 40.sp,
+                                          color: AppColors.textAlternative,
+                                        )
+                                      : null,
+                                ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              width: 26.w,
+                              height: 26.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.background,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.edit,
+                                size: 14.sp,
+                                color: AppColors.textAlternative,
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                      child: Icon(
-                        Icons.person,
-                        size: 40.sp,
-                        color: AppColors.textAlternative,
                       ),
                     ),
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(left: 16.w),
+                        padding: EdgeInsets.only(left: 16.w, right: 8.w),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Добро пожаловать, Алексей!',
+                              'Добро пожаловать, $name!',
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontFamily: 'Gilroy',
-                                fontSize: 18.sp,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 8.h),
+                            SizedBox(height: 6.h),
                             Text(
-                              _userPhone ?? '+7-777-888-77-88',
+                              phone,
                               style: TextStyle(
                                 fontFamily: 'Gilroy',
                                 color: AppColors.textComplimentary,
                                 fontSize: 16.sp,
                               ),
-                            ),
-                            SizedBox(height: 8.h),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12.w,
-                                vertical: 4.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.success.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.verified,
-                                    color: AppColors.success,
-                                    size: 16.sp,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    'Premium',
-                                    style: TextStyle(
-                                      color: AppColors.success,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'Gilroy',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        // Редактирование профиля
-                      },
-                      icon: Icon(
-                        Icons.edit,
-                        color: AppColors.primary,
-                        size: 24.sp,
-                      ),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: _logout,
+                          icon: Icon(
+                            Icons.logout,
+                            color: AppColors.textComplimentary,
+                            size: 22.sp,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                        SizedBox(width: 12.w),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsPage(),
+                              ),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.settings_outlined,
+                            color: AppColors.primary,
+                            size: 24.sp,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
 
-            // Настройки
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Настройки',
-                    style: GoogleFonts.delaGothicOne(
-                      fontSize: 18.sp,
-                      color: AppColors.text,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  _menuCard(
-                    icon: FontAwesomeIcons.bell,
-                    title: 'Уведомления',
-                    subtitle: 'Настройка уведомлений',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const NotificationsSettingsPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 12.h),
-                  _menuCard(
-                    icon: FontAwesomeIcons.shield,
-                    title: 'Безопасность',
-                    subtitle: 'Пароль, двухфакторная аутентификация',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SecuritySettingsPage(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+            // Виджет геймификации
+            if (profile != null)
+              GamificationWidget(
+                level: profile.level,
+                xpPoints: profile.xpPoints,
+                referralCode: profile.referralCode,
+                progress: profile.levelProgress,
+                xpToNextLevel: profile.xpToNextLevel,
               ),
-            ),
 
             // Информация об абонементе
             Padding(
@@ -278,25 +336,73 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   SizedBox(height: 16.h),
-                  _sectionCard(
-                    icon: FontAwesomeIcons.ticket,
-                    title: 'Текущий абонемент',
-                    children: [
-                      _infoRow('Тип', 'Premium'),
-                      _infoRow('Срок действия', 'до 31.12.2025'),
-                      _infoRow('Статус', 'Активен'),
-                      _infoRow('Осталось дней', '45'),
-                    ],
-                  ),
+                  _isLoadingMembership
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.h),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : _sectionCard(
+                          icon: FontAwesomeIcons.ticket,
+                          title: 'Текущий абонемент',
+                          children: [
+                            _infoRow('Тип', subscriptionType),
+                            _infoRow('Срок действия', subscriptionExpiry),
+                            _infoRow('Статус', subscriptionStatus),
+                            _infoRow('Осталось дней', subscriptionDaysLeft),
+                          ],
+                        ),
                   SizedBox(height: 18.h),
                   _sectionCard(
-                    icon: FontAwesomeIcons.medal,
-                    title: 'Достижения',
+                    icon: FontAwesomeIcons.wallet,
+                    title: 'Баланс',
                     children: [
-                      _infoRow('Уровень', 'Gold'),
-                      _infoRow('Баллы', '1,250'),
-                      _infoRow('Следующий уровень', 'Platinum (2,000 баллов)'),
-                      _infoRow('Прогресс', '62%'),
+                      _infoRow('Доступно кредитов', '$credits'),
+                      _infoRow('Всего начислено', '$totalCredits'),
+                      SizedBox(height: 16.h),
+                      // Кнопка для просмотра лицевых счетов
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DepositsPage(),
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.text,
+                            side: BorderSide(
+                              color: AppColors.textComplimentary.withOpacity(0.3),
+                              width: 1.5,
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          icon: Icon(
+                            FontAwesomeIcons.wallet,
+                            size: 16.sp,
+                            color: AppColors.textComplimentary,
+                          ),
+                          label: Text(
+                            'Мои лицевые счета',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontFamily: 'Gilroy',
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textComplimentary,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 18.h),
@@ -304,98 +410,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     icon: FontAwesomeIcons.building,
                     title: 'Клуб',
                     children: [
-                      _infoRow('Название', 'Champion Fitness'),
-                      _infoRow('Адрес', 'ул. Кажымукана, 123'),
-                      _infoRow('Телефон', '+7 (777) 123-45-67'),
-                      _infoRow('Режим работы', '24/7'),
+                      _infoRow('Название', clubName)
                     ],
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: 24.h),
-
-            // Кнопка выхода
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _logout,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                    foregroundColor: AppColors.text,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: Icon(FontAwesomeIcons.signOut, size: 18.sp),
-                  label: Text(
-                    'Выйти из аккаунта',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontFamily: 'Gilroy',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
             SizedBox(height: 32.h),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return AnimatedTap(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: ListTile(
-          leading: Container(
-            width: 40.w,
-            height: 40.h,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20.sp),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: AppColors.text,
-              fontSize: 16.sp,
-              fontFamily: 'Gilroy',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: TextStyle(
-              color: AppColors.textComplimentary,
-              fontSize: 14.sp,
-              fontFamily: 'Gilroy',
-            ),
-          ),
-          trailing: Icon(
-            Icons.arrow_forward_ios,
-            color: AppColors.textComplimentary,
-            size: 16.sp,
-          ),
         ),
       ),
     );
@@ -419,20 +442,24 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: [
                 Container(
-                  width: 40.w,
-                  height: 40.h,
+                  width: 36.w,
+                  height: 36.h,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.primary.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, color: AppColors.primary, size: 20.sp),
+                  child: Icon(icon, color: AppColors.primary, size: 18.sp),
                 ),
                 SizedBox(width: 12.w),
-                Text(
-                  title,
-                  style: GoogleFonts.delaGothicOne(
-                    fontSize: 16.sp,
-                    color: AppColors.text,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.delaGothicOne(
+                      fontSize: 16.sp,
+                      color: AppColors.text,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -450,22 +477,35 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.textComplimentary,
-              fontSize: 14.sp,
-              fontFamily: 'Gilroy',
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: AppColors.textComplimentary,
+                fontSize: 14.sp,
+                fontFamily: 'Gilroy',
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: AppColors.text,
-              fontSize: 14.sp,
-              fontFamily: 'Gilroy',
-              fontWeight: FontWeight.w500,
+          SizedBox(width: 8.w),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: AppColors.text,
+                fontSize: 14.sp,
+                fontFamily: 'Gilroy',
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

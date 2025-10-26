@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/modules/components/animated_tap.dart';
 
 class NotificationsSettingsPage extends StatefulWidget {
-  const NotificationsSettingsPage({Key? key}) : super(key: key);
+  const NotificationsSettingsPage({super.key});
 
   @override
   State<NotificationsSettingsPage> createState() =>

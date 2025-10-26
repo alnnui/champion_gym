@@ -6,7 +6,7 @@ import 'package:myapp/modules/pages/home.dart';
 import 'package:myapp/modules/layout/footbar.dart';
 import 'package:myapp/modules/pages/profile.dart';
 import 'package:myapp/modules/pages/stats.dart';
-import 'package:myapp/modules/pages/workouts.dart';
+import 'package:myapp/modules/pages/activities.dart';
 import 'package:myapp/modules/theme/colors.dart';
 
 class Layout extends StatefulWidget {
@@ -24,12 +24,15 @@ class _Layout extends State<Layout> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70),
         child: AppBar(
+          automaticallyImplyLeading: false,
+          leading: null,
           backgroundColor: AppColors.background,
           foregroundColor: AppColors.text,
           elevation: 0,
@@ -71,7 +74,7 @@ class _Layout extends State<Layout> {
       case 2:
         return WorkoutsPage();
       case 3:
-        return const ProfilePage(key: ValueKey(3));
+        return ProfilePage(key: ValueKey(3));
       default:
         return const SizedBox.shrink();
     }

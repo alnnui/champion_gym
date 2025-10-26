@@ -8,13 +8,13 @@ class AnimatedTap extends StatefulWidget {
   final Curve curve;
 
   const AnimatedTap({
-    Key? key,
+    super.key,
     required this.child,
     this.onTap,
     this.scale = 0.95,
     this.duration = const Duration(milliseconds: 100),
     this.curve = Curves.easeInOut,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedTap> createState() => _AnimatedTapState();

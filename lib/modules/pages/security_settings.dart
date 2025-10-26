@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/modules/components/animated_tap.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
-  const SecuritySettingsPage({Key? key}) : super(key: key);
+  const SecuritySettingsPage({super.key});
 
   @override
   State<SecuritySettingsPage> createState() => _SecuritySettingsPageState();

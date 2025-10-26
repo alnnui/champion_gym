@@ -14,7 +14,7 @@ class Message {
 }
 
 class AIAssistantPage extends StatefulWidget {
-  const AIAssistantPage({Key? key}) : super(key: key);
+  const AIAssistantPage({super.key});
 
   @override
   State<AIAssistantPage> createState() => _AIAssistantPageState();
@@ -27,7 +27,7 @@ class _AIAssistantPageState extends State<AIAssistantPage> {
   bool _isLoading = false;
 
   // Замените на ваш API ключ OpenAI
-  static const String _apiKey = 'YOUR_OPENAI_API_KEY';
+  static const String _apiKey = 'k-proj-MhiKl6lTfNOFjehX_O0_5AmPwvi9gz14_74bU7phlWG2lXkTkXy4e_2IeT382KPfgJbF7x0kMfT3BlbkFJVTZZ_oCOQjaCR9W4Glkmya3H0Pxmyd73LYJQL7pT6YFZVsjjNVtulT_jOgDqH-_FPVnEWmCvAA';
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions';
 
   @override
@@ -308,6 +308,7 @@ class _AIAssistantPageState extends State<AIAssistantPage> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.text),
           onPressed: () => Navigator.pop(context),

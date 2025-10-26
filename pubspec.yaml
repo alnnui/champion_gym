@@ -1,5 +1,5 @@
 name: myapp
-description: 'A new Flutter project.'
+description: 'The mobile app of the network of gyms in Kazakhstan.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -32,21 +32,50 @@ dependencies:
     sdk: flutter
   http: ^1.2.1
   flutter_dotenv: ^5.2.1
+  dio: ^5.9.0
   flutter_svg: ^2.0.7
   mask_text_input_formatter: ^2.5.0
   font_awesome_flutter: ^10.7.0
   flutter_screenutil: ^5.9.3
   shared_preferences: ^2.2.3
+  provider: ^6.1.0
+  barcode_widget: ^2.0.4
+  intl: ^0.18.0
+  local_auth: ^2.1.6
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  google_fonts: ^5.0.0
+  google_fonts: ^6.2.1
   flutter_secure_storage: ^9.0.0
+  rive: 0.14.4
+  rive_native: 0.1.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.1
+
+# App launcher icon configuration. Run: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "lib/assets/launcher/icon.png"
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#0D0D0D"
+  adaptive_icon_foreground: "lib/assets/launcher/icon_foreground.png"
+  web:
+    generate: true
+    image_path: "lib/assets/launcher/icon.png"
+    background_color: "#0D0D0D"
+    theme_color: "#F5DA34"
+  macos:
+    generate: true
+    image_path: "lib/assets/launcher/icon.png"
+  windows:
+    generate: true
+    image_path: "lib/assets/launcher/icon.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -80,8 +109,11 @@ flutter:
     - lib/assets/images/champion_black.png
     - lib/assets/images/champion_yellow.svg
     - lib/assets/icons/
+    - lib/assets/icons/avatar_config/
+    - lib/assets/animations/
     - lib/assets/images/hot_image.jpg
     - lib/assets/images/gift.svg
+    - lib/assets/launcher/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
